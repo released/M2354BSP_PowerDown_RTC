@@ -472,12 +472,16 @@ void RTC_Init (void)
 		Emulate_EEPROM_Write(_eep_index_RTC_is_record , TRUE);
 		FLASH_Lock();
         
-        /* Enable RTC tick interrupt and wake-up function will be enabled also */
-        RTC_EnableInt(RTC_INTEN_TICKIEN_Msk);
-        RTC_SetTickPeriod(RTC_TICK_1_SEC);           
+      
     }
     else
     {
+    	#if 1
+		RTC_GetDateAndTime(&recallTime);
+		printf("# recall from RTC : %d/%02d/%02d %02d:%02d:%02d.\n",
+			   recallTime.u32Year, recallTime.u32Month, recallTime.u32Day, recallTime.u32Hour, recallTime.u32Minute, recallTime.u32Second);
+
+    	#else
     	FLASH_Unlock();
 		if (Emulate_EEPROM_Read(_eep_index_RTC_is_record) == TRUE)
 		{
@@ -496,13 +500,15 @@ void RTC_Init (void)
 			//RTC_SetDateAndTime(&recallTime);
 			RTC_Open(&recallTime);
 			
-			printf("%s : recall \r\n" , __FUNCTION__);
-
-	        RTC_EnableInt(RTC_INTEN_TICKIEN_Msk);
-	        RTC_SetTickPeriod(RTC_TICK_1_SEC);    				
+			printf("%s : recall from record\r\n" , __FUNCTION__);			
 		}
 		FLASH_Lock();
+		#endif
     }
+
+	/* Enable RTC tick interrupt and wake-up function will be enabled also */
+	RTC_EnableInt(RTC_INTEN_TICKIEN_Msk);
+	RTC_SetTickPeriod(RTC_TICK_1_SEC);
     
     RTC_CLEAR_TICK_INT_FLAG(RTC);
 
